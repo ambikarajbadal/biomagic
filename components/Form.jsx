@@ -82,7 +82,7 @@ const Form = ({ type, handleSubmit }) => {
       return;
     }
 
-    const updatedData = [...bioFormData?.contactInfo];
+    const updatedData = [...bioFormData?.familyInfo];
     updatedData[index][field] = newValue;
     const stateData = {
       ...bioFormData,
@@ -298,14 +298,13 @@ const Form = ({ type, handleSubmit }) => {
   };
 
   const handleOnSubmit = () => {
-    setIsSubmitting(true);
     if (!checkValidation()) return;
+    setIsSubmitting(true);
     setTimeout(() => {
       handleSubmit();
       setIsSubmitting(false);
     }, 1000);
   };
-  console.log({ isImageCropperOpen });
   return (
     <section className="w-full">
       <h1 className="head_text text-left">

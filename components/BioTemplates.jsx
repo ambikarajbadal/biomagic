@@ -23,7 +23,15 @@ const BioTemplates = ({ post, handleEdit, handleDelete, handleTagClick }) => {
     },
     {
       headTextColor: "",
-      image: "/assets/images/dymmyTemplate.jpg",
+      image: "/assets/images/template4.png",
+    },
+    {
+      headTextColor: "",
+      image: "/assets/images/template5.png",
+    },
+    {
+      headTextColor: "",
+      image: "/assets/images/template6.png",
     },
   ];
 
