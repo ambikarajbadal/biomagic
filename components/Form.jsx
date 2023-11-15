@@ -18,6 +18,7 @@ import { CustomModal } from "./CustomModal";
 import DateMonthYear from "./DateMonthYear";
 import Dropdown from "./Dropdown";
 import { ImageCropper } from "./ImageCropper";
+import InputField from "./InputField";
 import LogoPreview from "./LogoPreview";
 import ProfileImage from "./ProfileImage";
 const logo1 = "/assets/images/1.png";
@@ -38,6 +39,7 @@ const Form = ({ type, handleSubmit }) => {
 
   const [selectedImage, setSelectedImage] = useState(null);
   const [isImageCropperOpen, setImageCropperOpen] = useState(false);
+  const [errors, setErrors] = useState({});
 
   console.log({ bioFormData });
 
@@ -63,6 +65,11 @@ const Form = ({ type, handleSubmit }) => {
     const updatedData = [...bioFormData.personalInfo];
     updatedData[index][field] = newValue;
 
+    setErrors({
+      ...errors,
+      [updatedData[index]?.key]: "",
+    });
+
     const stateData = {
       ...bioFormData,
       personalInfo: updatedData,
@@ -84,6 +91,12 @@ const Form = ({ type, handleSubmit }) => {
 
     const updatedData = [...bioFormData?.familyInfo];
     updatedData[index][field] = newValue;
+
+    setErrors({
+      ...errors,
+      [updatedData[index]?.key]: "",
+    });
+
     const stateData = {
       ...bioFormData,
       familyInfo: updatedData,
@@ -104,6 +117,12 @@ const Form = ({ type, handleSubmit }) => {
     }
     const updatedData = [...bioFormData?.contactInfo];
     updatedData[index][field] = newValue;
+
+    setErrors({
+      ...errors,
+      [updatedData[index]?.key]: "",
+    });
+
     const stateData = {
       ...bioFormData,
       contactInfo: updatedData,
@@ -119,6 +138,12 @@ const Form = ({ type, handleSubmit }) => {
       } else {
         updatedData[index].value = value;
       }
+
+      setErrors({
+        ...errors,
+        [updatedData[index]?.key]: "",
+      });
+
       const stateData = {
         ...bioFormData,
         personalInfo: updatedData,
@@ -127,10 +152,20 @@ const Form = ({ type, handleSubmit }) => {
     };
     switch (index) {
       case 1:
-        return <DateMonthYear handleChange={handleChange} value={itemValue} />;
+        return (
+          <DateMonthYear
+            handleChange={handleChange}
+            value={itemValue}
+            error={errors?.DOB}
+          />
+        );
       case 2:
         return (
-          <BirthTimeDropDown handleChange={handleChange} value={itemValue} />
+          <BirthTimeDropDown
+            handleChange={handleChange}
+            value={itemValue}
+            error={errors?.TOB}
+          />
         );
       case 4:
         return (
@@ -244,61 +279,54 @@ const Form = ({ type, handleSubmit }) => {
     setImageCropperOpen(false);
   };
 
-  const checkValidation = () => {
-    let isValid = true;
-    const personalItemListToCheck = [0, 3, 7, 8, 11, 12, 13, 14];
-    const familyitemListToCheck = [0, 1, 2, 3, 4, 5];
-    const contactItemListToCheck = [0, 1];
+  const checkValidation = async () => {
     const dobObj = bioFormData.personalInfo[1].value; // Date of Birth Object
     const tobObj = bioFormData.personalInfo[2].value; // Time of Birth Object
+    const newErrors = {};
+    let hasErrors = false;
 
     if (!dobObj.date || !dobObj.month || !dobObj.year) {
-      isValid = false;
-      alert("Please fill DOB!");
-      return;
+      newErrors.DOB = "Required";
+      hasErrors = true;
     }
 
     if (!tobObj.hr || !tobObj.min || !tobObj.format) {
-      isValid = false;
-      alert("Please fill Time of Birth!");
-      return;
+      newErrors.TOB = "Required";
+      hasErrors = true;
     }
 
     for (let i = 0; i < bioFormData.personalInfo.length; i++) {
       const item = bioFormData.personalInfo[i];
-      if (personalItemListToCheck.includes(i) && !item.value) {
-        isValid = false;
-
-        alert("Mandatory field required");
-        break;
+      if (item?.isRequired && (!item.value || !item.label)) {
+        newErrors[item.key] = "Required!";
+        hasErrors = true;
       }
     }
-
     for (let i = 0; i < bioFormData.familyInfo.length; i++) {
       const item = bioFormData.familyInfo[i];
-      if (familyitemListToCheck.includes(i) && !item.value) {
-        isValid = false;
-
-        alert("Mandatory field required");
-        break;
+      if (item?.isRequired && (!item.value || !item.label)) {
+        newErrors[item.key] = "Required!";
+        hasErrors = true;
       }
     }
 
     for (let i = 0; i < bioFormData.contactInfo.length; i++) {
       const item = bioFormData.contactInfo[i];
-      if (contactItemListToCheck.includes(i) && !item.value) {
-        isValid = false;
-
-        alert("Mandatory field required");
-        break;
+      if (item?.isRequired && (!item.value || !item.label)) {
+        newErrors[item.key] = "Required!";
+        hasErrors = true;
       }
     }
+    console.log({ newErrors });
 
-    return isValid;
+    if (hasErrors) {
+      setErrors(newErrors);
+      return;
+    }
   };
 
-  const handleOnSubmit = () => {
-    if (!checkValidation()) return;
+  const handleOnSubmit = async () => {
+    await checkValidation();
     setIsSubmitting(true);
     setTimeout(() => {
       handleSubmit();
@@ -330,23 +358,17 @@ const Form = ({ type, handleSubmit }) => {
           />
           <div className="w-3/12">
             {bioFormData?.logoImage && (
-              <label className="block text-gray-700 font-bold mb-2">
-                <input
-                  type="text"
-                  className="form_input text-center"
-                  value={bioFormData?.mainTitle}
-                  onChange={(e) => inputHandler("mainTitle", e.target.value)}
-                />
-              </label>
-            )}
-            <label className="block text-gray-700 font-bold mb-2">
-              <input
-                type="text"
-                className="form_input text-center"
-                value={bioFormData?.bioTitle}
-                onChange={(e) => inputHandler("bioTitle", e.target.value)}
+              <InputField
+                value={bioFormData?.mainTitle}
+                changeHandler={(e) => inputHandler("mainTitle", e.target.value)}
+                className="text-center"
               />
-            </label>
+            )}
+            <InputField
+              value={bioFormData?.bioTitle}
+              changeHandler={(e) => inputHandler("bioTitle", e.target.value)}
+              className="text-center"
+            />
           </div>
 
           {/* TO PREVIEW USER PROFILE */}
@@ -359,69 +381,58 @@ const Form = ({ type, handleSubmit }) => {
         <div className="mt-10 grid grid-cols-1 md:grid-cols-3 gap-4 ">
           {bioFormData?.personalInfo.map((item, index) => (
             <div key={index} className="mb-4">
-              <label className="block text-gray-700 font-bold mb-2">
-                <input
-                  type="text"
-                  className="form_input"
-                  value={item.label}
-                  onChange={(e) =>
-                    personalInfoInputChange(index, "label", e.target.value)
-                  }
-                  placeholder={item?.labelPlaceholder}
-                />
-              </label>
+              <InputField
+                value={item.label}
+                changeHandler={(e) =>
+                  personalInfoInputChange(index, "label", e.target.value)
+                }
+                placeholder={item?.labelPlaceholder}
+              />
+
               {item?.isDropdown ? (
                 renderDropDown(index, item.value)
               ) : (
-                <input
-                  type="text"
-                  className="form_input"
+                <InputField
                   value={item.value}
-                  onChange={(e) =>
+                  changeHandler={(e) =>
                     personalInfoInputChange(index, "value", e.target.value)
                   }
+                  error={errors?.[item?.key]}
                 />
               )}
             </div>
           ))}
         </div>
         <div className="flex justify-around">
-          <div className="w-3/12 text-center">
-            <label className="block text-gray-700 font-bold mb-2">
-              <input
-                type="text"
-                className="form_input text-center"
-                value={bioFormData?.familyTitle}
-                onChange={(e) => inputHandler("familyTitle", e.target.value)}
-              />
-            </label>
+          <div className="w-3/12 sm:w-full text-center">
+            <InputField
+              value={bioFormData?.familyTitle}
+              changeHandler={(e) => inputHandler("familyTitle", e.target.value)}
+              className="text-center"
+            />
           </div>
         </div>
         <div className="mt-5 grid grid-cols-1 md:grid-cols-3 gap-4 ">
           {bioFormData?.familyInfo?.map((item, index) => (
             <div key={index} className="mb-4">
-              <label className="block text-gray-700 font-bold mb-2">
-                <input
-                  type="text"
-                  className="form_input"
-                  value={item.label}
-                  onChange={(e) =>
-                    handleFamilyInputChange(index, "label", e.target.value)
-                  }
-                  placeholder={item?.labelPlaceholder}
-                />
-              </label>
+              <InputField
+                value={item.label}
+                changeHandler={(e) =>
+                  handleFamilyInputChange(index, "label", e.target.value)
+                }
+                placeholder={item?.labelPlaceholder}
+              />
+
               {item?.isDropdown ? (
                 renderDropDown(index, item.value)
               ) : (
-                <input
-                  type="text"
-                  className="form_input"
+                <InputField
                   value={item.value}
-                  placeholder={item?.placeholder}
-                  onChange={(e) =>
+                  changeHandler={(e) =>
                     handleFamilyInputChange(index, "value", e.target.value)
                   }
+                  placeholder={item?.placeholder}
+                  error={errors?.[item?.key]}
                 />
               )}
             </div>
@@ -429,42 +440,36 @@ const Form = ({ type, handleSubmit }) => {
         </div>
 
         <div className="flex justify-around">
-          <div className="w-3/12 text-center">
-            <label className="block text-gray-700 font-bold mb-2">
-              <input
-                type="text"
-                className="form_input text-center"
-                value={bioFormData?.contactTitle}
-                onChange={(e) => inputHandler("contactTitle", e.target.value)}
-              />
-            </label>
+          <div className="w-3/12 sm:w-full text-center">
+            <InputField
+              value={bioFormData?.contactTitle}
+              changeHandler={(e) =>
+                inputHandler("contactTitle", e.target.value)
+              }
+              className="text-center"
+            />
           </div>
         </div>
         <div className="mt-5 grid grid-cols-1 md:grid-cols-3 gap-4 ">
           {bioFormData?.contactInfo?.map((item, index) => (
             <div key={index} className="mb-4">
-              <label className="block text-gray-700 font-bold mb-2">
-                <input
-                  type="text"
-                  className="form_input"
-                  value={item.label}
-                  disabled={item?.isLabelDisable}
-                  onChange={(e) =>
-                    handleContactInputChange(index, "label", e.target.value)
-                  }
-                />
-              </label>
+              <InputField
+                value={item.label}
+                changeHandler={(e) =>
+                  handleContactInputChange(index, "label", e.target.value)
+                }
+                disabled={item?.isLabelDisable}
+              />
               {item?.isDropdown ? (
                 renderDropDown(index, item.value)
               ) : (
-                <input
-                  type="text"
-                  className="form_input"
+                <InputField
                   value={item.value}
-                  placeholder={item?.placeholder}
-                  onChange={(e) =>
+                  changeHandler={(e) =>
                     handleContactInputChange(index, "value", e.target.value)
                   }
+                  placeholder={item?.placeholder}
+                  error={errors?.[item?.key]}
                 />
               )}
             </div>

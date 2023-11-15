@@ -1,7 +1,7 @@
 "use client";
 import { HOURS, MINUTES } from "@utils/constant";
 import Dropdown from "./Dropdown";
-export const BirthTimeDropDown = ({ handleChange, value }) => {
+export const BirthTimeDropDown = ({ handleChange, value, error }) => {
   const onChangeHandler = (key, value) => {
     handleChange({ [key]: value });
   };
@@ -32,6 +32,7 @@ export const BirthTimeDropDown = ({ handleChange, value }) => {
           value={value?.format}
         />
       </div>
+      {error && <p className="text-red-500 text-sm mt-1">{error}</p>}
     </div>
   );
 };

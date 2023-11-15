@@ -2,7 +2,7 @@ import { DATES, MONTHS } from "@utils/constant";
 import { getLast50Years } from "@utils/utils";
 import React from "react";
 import Dropdown from "./Dropdown";
-const DateMonthYear = ({ handleChange, value }) => {
+const DateMonthYear = ({ handleChange, value, error }) => {
   const onChangeHandler = (key, value) => {
     handleChange({ [key]: value });
   };
@@ -33,6 +33,7 @@ const DateMonthYear = ({ handleChange, value }) => {
           onSelect={(data) => onChangeHandler("year", data)}
         />
       </div>
+      {error && <p className="text-red-500 text-sm mt-1">{error}</p>}
     </div>
   );
 };
