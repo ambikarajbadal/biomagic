@@ -279,7 +279,7 @@ const Form = ({ type, handleSubmit }) => {
     setImageCropperOpen(false);
   };
 
-  const checkValidation = async () => {
+  const checkValidation = () => {
     const dobObj = bioFormData.personalInfo[1].value; // Date of Birth Object
     const tobObj = bioFormData.personalInfo[2].value; // Time of Birth Object
     const newErrors = {};
@@ -328,8 +328,9 @@ const Form = ({ type, handleSubmit }) => {
     }
   };
 
-  const handleOnSubmit = async () => {
+  const handleOnSubmit = () => {
     if (!checkValidation()) return;
+    console.log("dddd", checkValidation());
     setIsSubmitting(true);
     setTimeout(() => {
       handleSubmit();

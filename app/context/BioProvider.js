@@ -27,7 +27,7 @@ export const BioFormContextProvider = ({ children }) => {
         label: "Time of Birth",
         isRequired: true,
         key: "TOB",
-        value: { hr: "", min: "", format: "" },
+        value: { hr: "", min: "", format: "AM" },
         isDropdown: true,
       },
       {
