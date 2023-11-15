@@ -284,6 +284,7 @@ const Form = ({ type, handleSubmit }) => {
     const tobObj = bioFormData.personalInfo[2].value; // Time of Birth Object
     const newErrors = {};
     let hasErrors = false;
+    let isValid = true;
 
     if (!dobObj.date || !dobObj.month || !dobObj.year) {
       newErrors.DOB = "Required";
@@ -321,12 +322,14 @@ const Form = ({ type, handleSubmit }) => {
 
     if (hasErrors) {
       setErrors(newErrors);
-      return;
+      return false; // isValid
+    } else {
+      return true; // isValid
     }
   };
 
   const handleOnSubmit = async () => {
-    await checkValidation();
+    if (!checkValidation()) return;
     setIsSubmitting(true);
     setTimeout(() => {
       handleSubmit();
